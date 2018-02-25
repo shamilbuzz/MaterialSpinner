@@ -836,7 +836,8 @@ public class MaterialSpinner extends AppCompatSpinner
 
     @Override
     public SpinnerAdapter getAdapter() {
-        return hintAdapter != null ? hintAdapter.getWrappedAdapter() : null;
+//        return hintAdapter != null ? hintAdapter.getWrappedAdapter() : null;
+        return super.getAdapter();
     }
 
     @Override
