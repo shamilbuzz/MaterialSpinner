@@ -15,6 +15,7 @@
             android:id="@+id/spinner1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:entries="@array/planets"
             app:ms_arrowColor="#0000FF"
             app:ms_arrowSize="16dp"
             app:ms_floatingLabelColor="#00FF00"
@@ -22,56 +23,56 @@
             app:ms_hint="hint"
             app:ms_multiline="true" />
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:ms_enableErrorLabel="false"
-            app:ms_enableFloatingLabel="false"
-            app:ms_hint="hint"
-            app:ms_hintColor="#0000FF" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner2"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:ms_enableErrorLabel="false"-->
+        <!--app:ms_enableFloatingLabel="false"-->
+        <!--app:ms_hint="hint"-->
+        <!--app:ms_hintColor="#0000FF" />-->
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:ms_enableErrorLabel="false"
-            app:ms_enableFloatingLabel="false" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner3"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:ms_enableErrorLabel="false"-->
+        <!--app:ms_enableFloatingLabel="false" />-->
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:ms_alignLabels="false"
-            app:ms_baseColor="@color/spinner_base_color"
-            app:ms_multiline="false" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner4"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:ms_alignLabels="false"-->
+        <!--app:ms_baseColor="@color/spinner_base_color"-->
+        <!--app:ms_multiline="false" />-->
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner5"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:ms_enableErrorLabel="false"
-            app:ms_enableFloatingLabel="false"
-            app:ms_dropDownHintView="@layout/dropdown_hint_item"
-            app:ms_hintView="@layout/hint_item"
-            app:ms_hint="hint"
-            app:ms_hintColor="#0000FF" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner6"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:ms_enableErrorLabel="false"-->
+        <!--app:ms_enableFloatingLabel="false"-->
+        <!--app:ms_dropDownHintView="@layout/dropdown_hint_item"-->
+        <!--app:ms_hintView="@layout/hint_item"-->
+        <!--app:ms_hint="hint"-->
+        <!--app:ms_hintColor="#0000FF" />-->
 
-        <fr.ganfra.materialspinner.MaterialSpinner
-            android:id="@+id/spinner7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <!--<fr.ganfra.materialspinner.MaterialSpinner-->
+        <!--android:id="@+id/spinner7"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Show/hide error"
-            android:onClick="activateError" />
+        <!--<Button-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:hint="Show/hide error"-->
+        <!--android:onClick="activateError" />-->
 
     </LinearLayout>
 </ScrollView>

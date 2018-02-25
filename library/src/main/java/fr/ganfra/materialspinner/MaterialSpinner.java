@@ -2,7 +2,10 @@ package fr.ganfra.materialspinner;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -14,6 +17,7 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -23,16 +27,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.AnimatorUpdateListener {
+
+public class MaterialSpinner extends AppCompatSpinner
+        implements ValueAnimator.AnimatorUpdateListener, View.OnTouchListener,
+        SearchableListDialog.SearchableItem {
 
     public static final int DEFAULT_ARROW_WIDTH_DP = 12;
-
+    public static final int NO_ITEM_SELECTED = -1;
     private static final String TAG = MaterialSpinner.class.getSimpleName();
+    private List _items;
+    private SearchableListDialog _searchableListDialog;
+    private ArrayAdapter _arrayAdapter;
+    private boolean _isFromInit;
+    private boolean _isDirty;
 
     //Paint objects
     private Paint paint;
@@ -149,6 +164,19 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         //Erase the drawable selector not to be affected by new size (extra paddings)
         setBackgroundResource(R.drawable.my_background);
 
+
+        _items = new ArrayList();
+        _searchableListDialog = SearchableListDialog.newInstance
+                (_items);
+        _searchableListDialog.setOnSearchableItemClickListener(this);
+        setOnTouchListener(this);
+        _arrayAdapter = (ArrayAdapter) getAdapter();
+        if (!TextUtils.isEmpty(hint)) {
+            ArrayAdapter arrayAdapter = new ArrayAdapter(context, android.R.layout
+                    .simple_list_item_1, new String[]{hint.toString()});
+            _isFromInit = true;
+            setAdapter(arrayAdapter);
+        }
     }
 
     private void initAttributes(Context context, AttributeSet attrs) {
@@ -232,15 +260,6 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         for (int i = 0; i < 3; i++) {
             selectorPoints[i] = new Point();
         }
-    }
-
-    @Override
-    public int getSelectedItemPosition() {
-        return super.getSelectedItemPosition();
-    }
-
-    public Object getSelectedItem() {
-        return super.getItemAtPosition(getSelectedItemPosition()-1);
     }
 
     private void initPadding() {
@@ -368,7 +387,7 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         if (error != null) {
             float screenWidth = getWidth() - rightLeftSpinnerPadding;
             float errorTextWidth = textPaint.measureText(error.toString(), 0, error.length());
-            return errorTextWidth > screenWidth ? true : false;
+            return errorTextWidth > screenWidth;
         }
         return false;
     }
@@ -454,10 +473,10 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
             }
             String textToDraw = floatingLabelText != null ? floatingLabelText.toString() : hint.toString();
             if (isRtl) {
-				canvas.drawText(textToDraw, getWidth() - rightLeftSpinnerPadding - textPaint.measureText(textToDraw), startYFloatingLabel, textPaint);
-			} else {
-				canvas.drawText(textToDraw, startX + rightLeftSpinnerPadding, startYFloatingLabel, textPaint);
-			}
+                canvas.drawText(textToDraw, getWidth() - rightLeftSpinnerPadding - textPaint.measureText(textToDraw), startYFloatingLabel, textPaint);
+            } else {
+                canvas.drawText(textToDraw, startX + rightLeftSpinnerPadding, startYFloatingLabel, textPaint);
+            }
         }
 
         drawSelector(canvas, getWidth() - rightLeftSpinnerPadding, getPaddingTop() + dpToPx(8));
@@ -622,20 +641,20 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         invalidate();
     }
 
+    public CharSequence getHint() {
+        return hint;
+    }
+
     public void setHint(int resid) {
         CharSequence hint = getResources().getString(resid);
         setHint(hint);
     }
 
-    public CharSequence getHint() {
-        return hint;
-    }
-
-    public void setHintView(Integer resId){
+    public void setHintView(Integer resId) {
         this.mHintView = resId;
     }
 
-    public void setDripDownHintView(Integer resId){
+    public void setDripDownHintView(Integer resId) {
         this.mDropDownHintView = resId;
     }
 
@@ -644,13 +663,13 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         invalidate();
     }
 
+    public CharSequence getFloatingLabelText() {
+        return this.floatingLabelText;
+    }
+
     public void setFloatingLabelText(int resid) {
         String floatingLabelText = getResources().getString(resid);
         setFloatingLabelText(floatingLabelText);
-    }
-
-    public CharSequence getFloatingLabelText() {
-        return this.floatingLabelText;
     }
 
     public int getFloatingLabelColor() {
@@ -764,11 +783,6 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         requestLayout();
     }
 
-    public void setError(int resid) {
-        CharSequence error = getResources().getString(resid);
-        setError(error);
-    }
-
     @Override
     public void setEnabled(boolean enabled) {
         if (!enabled) {
@@ -782,14 +796,19 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
         return this.error;
     }
 
-    public void setRtl() {
-		isRtl = true;
-		invalidate();
-	}
+    public void setError(int resid) {
+        CharSequence error = getResources().getString(resid);
+        setError(error);
+    }
 
-	public boolean isRtl() {
-		return isRtl;
-	}
+    public void setRtl() {
+        isRtl = true;
+        invalidate();
+    }
+
+    public boolean isRtl() {
+        return isRtl;
+    }
 
     /**
      * @deprecated {use @link #setPaddingSafe(int, int, int, int)} to keep internal computation OK
@@ -816,18 +835,27 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
     }
 
     @Override
-    public void setAdapter(SpinnerAdapter adapter) {
-        if(adapter instanceof HintAdapter) {
-            super.setAdapter(adapter);
-        } else {
-            hintAdapter = new HintAdapter(adapter, getContext());
-            super.setAdapter(hintAdapter);
-        }
+    public SpinnerAdapter getAdapter() {
+        return hintAdapter != null ? hintAdapter.getWrappedAdapter() : null;
     }
 
     @Override
-    public SpinnerAdapter getAdapter() {
-        return hintAdapter != null ? hintAdapter.getWrappedAdapter() : null;
+    public void setAdapter(SpinnerAdapter adapter) {
+        if (!_isFromInit) {
+            _arrayAdapter = (ArrayAdapter) adapter;
+            if (!TextUtils.isEmpty(hint) && !_isDirty) {
+                ArrayAdapter arrayAdapter = new ArrayAdapter(getContext(),
+                        android.R.layout.simple_list_item_1,
+                        new String[]{hint.toString()});
+                super.setAdapter(arrayAdapter);
+            } else {
+                super.setAdapter(adapter);
+            }
+
+        } else {
+            _isFromInit = false;
+            super.setAdapter(adapter);
+        }
     }
 
     private float getFloatingLabelPercent() {
@@ -869,6 +897,93 @@ public class MaterialSpinner extends AppCompatSpinner implements ValueAnimator.A
             position++;
         }
         return (hintAdapter == null || position < 0) ? INVALID_ROW_ID : hintAdapter.getItemId(position);
+    }
+
+    private Activity scanForActivity(Context cont) {
+        if (cont == null)
+            return null;
+        else if (cont instanceof Activity)
+            return (Activity) cont;
+        else if (cont instanceof ContextWrapper)
+            return scanForActivity(((ContextWrapper) cont).getBaseContext());
+
+        return null;
+    }
+
+    @Override
+    public int getSelectedItemPosition() {
+        if (!TextUtils.isEmpty(hint) && !_isDirty) {
+            return NO_ITEM_SELECTED;
+        } else {
+            return super.getSelectedItemPosition();
+        }
+    }
+
+    @Override
+    public Object getSelectedItem() {
+        if (!TextUtils.isEmpty(hint) && !_isDirty) {
+            return null;
+        } else {
+            return super.getSelectedItem();
+        }
+    }
+
+    @Override
+    public void onSearchableItemClicked(Object item, int position) {
+        setSelection(_items.indexOf(item));
+        if (!_isDirty) {
+            _isDirty = true;
+            setAdapter(_arrayAdapter);
+            setSelection(_items.indexOf(item));
+        }
+    }
+
+    public void setPositiveButton(String strPositiveButtonText) {
+        _searchableListDialog.setPositiveButton(strPositiveButtonText);
+    }
+
+    public void setPositiveButton(String strPositiveButtonText, DialogInterface.OnClickListener onClickListener) {
+        _searchableListDialog.setPositiveButton(strPositiveButtonText, onClickListener);
+    }
+
+    public void setOnSearchTextChangedListener(SearchableListDialog.OnSearchTextChanged onSearchTextChanged) {
+        _searchableListDialog.setOnSearchTextChangedListener(onSearchTextChanged);
+    }
+
+    /**
+     * Called when a touch event is dispatched to a view. This allows listeners to
+     * get a chance to respond before the target view.
+     *
+     * @param v     The view the touch event has been dispatched to.
+     * @param event The MotionEvent object containing full information about
+     *              the event.
+     * @return True if the listener has consumed the event, false otherwise.
+     */
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (_searchableListDialog.isAdded()) {
+            return true;
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+
+            if (null != _arrayAdapter) {
+
+                // Refresh content #6
+                // Change Start
+                // Description: The items were only set initially, not reloading the data in the
+                // spinner every time it is loaded with items in the adapter.
+                _items.clear();
+                for (int i = 0; i < _arrayAdapter.getCount(); i++) {
+                    _items.add(_arrayAdapter.getItem(i));
+                }
+                // Change end.
+
+                _searchableListDialog.show(
+                        scanForActivity(getContext()).getFragmentManager(), "TAG"
+                );
+            }
+        }
+        return true;
     }
 
     /*
